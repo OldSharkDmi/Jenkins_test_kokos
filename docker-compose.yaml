@@ -1,0 +1,38 @@
+services:
+  jenkins-server:
+    image: jenkins/jenkins:lts-jdk17
+    container_name: jenkins-server
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Монтирование Docker сокета (на Linux)
+    environment:
+      TZ: "Europe/Moscow"
+      DOCKER_HOST: "tcp://host.docker.internal:2375"  # Указывает на Docker хост (для Windows)
+    restart: unless-stopped
+    networks:
+      - jenkins-network
+
+  jenkins-agent:
+    image: jenkins/inbound-agent
+    container_name: jenkins-agent
+    depends_on:
+      - jenkins-server
+    environment:
+      JENKINS_URL: "http://jenkins-server:8080/"
+      JENKINS_AGENT_NAME: "saaaas"
+      JENKINS_SECRET: "773d1e6756c7fa56ab7d54000a8abb75570d5473ab8f468f5703d00ffc23a8ca"
+    restart: unless-stopped
+    volumes:
+      - agent_workdir:/home/jenkins/agent
+    networks:
+      - jenkins-network
+
+volumes:
+  jenkins_home:
+  agent_workdir:
+
+networks:
+  jenkins-network:
