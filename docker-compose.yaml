@@ -9,8 +9,7 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock  # Монтирование Docker сокета (на Linux)
     environment:
-      TZ: "Europe/Moscow"
-      DOCKER_HOST: "tcp://host.docker.internal:2375"  # Указывает на Docker хост (для Windows)
+      DOCKER_HOST: "unix:///var/run/docker.sock"
     restart: unless-stopped
     networks:
       - jenkins-network
