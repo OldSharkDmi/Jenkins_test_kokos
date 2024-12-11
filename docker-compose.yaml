@@ -1,37 +1,13 @@
+version: '3.8'
+
 services:
-  jenkins-server:
-    image: jenkins/jenkins:lts-jdk17
-    container_name: jenkins-server-${BUILD_ID} # Уникальное имя контейнера
+  app-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-service
     ports:
       - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      DOCKER_HOST: "unix:///var/run/docker.sock"
     restart: unless-stopped
-    networks:
-      - jenkins-network
-
-  jenkins-agent:
-    image: jenkins/inbound-agent
-    container_name: jenkins-agent-${BUILD_ID} # Уникальное имя контейнера
-    depends_on:
-      - jenkins-server
     environment:
-      JENKINS_URL: "http://jenkins-server-${BUILD_ID}:8080/"
-      JENKINS_AGENT_NAME: "agent-${BUILD_ID}"
-      JENKINS_SECRET: "773d1e6756c7fa56ab7d54000a8abb75570d5473ab8f468f5703d00ffc23a8ca"
-    restart: unless-stopped
-    volumes:
-      - agent_workdir:/home/jenkins/agent
-    networks:
-      - jenkins-network
-
-volumes:
-  jenkins_home:
-  agent_workdir:
-
-networks:
-  jenkins-network:
+      SPRING_PROFILES_ACTIVE: "prod"
